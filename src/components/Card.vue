@@ -17,6 +17,7 @@
         </div>
         <div>
           <span class="fw-bold fs-6">Vote: </span>
+          <i :class="getStars(vote, star)" v-for="star in stars"></i>
           {{ vote }}
         </div>
       </div>
@@ -38,8 +39,21 @@ export default {
   data() {
     return {
       store,
+      stars: 5,
     }
-  }
+  },
+  methods: {
+    getStars(vote, cycle) {
+      if (vote > cycle - 1 && vote < cycle) {
+        return "fa-solid fa-star-half-stroke"
+      } else if (vote >= cycle) {
+        return "fa-solid fa-star"
+      } else {
+        return "fa-regular fa-star"
+      }
+
+    }
+  },
 }
 </script>
 

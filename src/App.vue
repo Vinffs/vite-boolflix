@@ -10,7 +10,7 @@
         <div class="row">
           <div class="col-12 col-md-4 col-lg-3" v-for="(movie, index) in store.movieList" :key="movie.id">
             <Card :path="movie.poster_path" :title="movie.title" :original="movie.original_title"
-              :language="movie.original_language" :vote="movie.vote_average" />
+              :language="movie.original_language" :vote="getVote(movie.vote_average)" />
           </div>
         </div>
       </section>
@@ -19,7 +19,7 @@
         <div class="row">
           <div class="col-12 col-md-4 col-lg-3" v-for="(serie, index) in store.seriesList" :key="serie.id">
             <Card :path="serie.poster_path" :title="serie.name" :original="serie.original_name"
-              :language="serie.original_language" :vote="serie.vote_average" />
+              :language="serie.original_language" :vote="getVote(serie.vote_average)" />
           </div>
         </div>
       </section>
@@ -56,6 +56,11 @@ export default {
         console.log(this.store.movieList, this.store.seriesList)
       })
       this.store.params.query = "";
+    },
+    getVote(vote) {
+      const newVote = vote / 2;
+      const rounded = Math.round(newVote * 2) / 2;
+      return rounded;
     }
   },
   created() {
