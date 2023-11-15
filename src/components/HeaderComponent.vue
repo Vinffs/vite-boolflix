@@ -2,7 +2,7 @@
   <header class="row m-0">
     <div class="col-12 d-flex justify-content-center align-items-end pb-5">
       <div class="d-flex">
-        <input type="text" class="form-control" placeholder="Search..." />
+        <input type="text" class="form-control" placeholder="Search..." v-model="store.params.query" />
         <button class="ms-2 btn btn-danger" type="button" @click="$emit('clicked')">
           Search
         </button>
@@ -20,6 +20,8 @@ export default {
       store,
     }
   },
+  methods: {
+  }
 }
 </script>
 

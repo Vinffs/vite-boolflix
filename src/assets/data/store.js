@@ -8,10 +8,10 @@ export const store = reactive({
   },
   params: {
     api_key: "c86e86575fec70888484dcb2a1c2fd09",
-    query: "a",
+    query: "",
   },
-  error: "",
-  loading: true,
   movieList: [],
   seriesList: [],
+  imagePath: "https://image.tmdb.org/t/p/w300",
+  imageDefault: "/images/default.jpg",
 });
