@@ -3,13 +3,22 @@
     <img :src="(path != null ? (store.imagePath + path) : store.imageDefault)" class="card-img-top" :alt="title">
     <div class="card-body">
       <div class="card-title">
-        <span class="fw-bold fs-6">Title: </span>{{ title }}
+        <span class="fw-bold fs-6">Title: </span>
+        {{ title }}
       </div>
       <div class="card-text">
-        <div><span class="fw-bold fs-6">Original: </span>{{ original }}</div>
-        <div><span class="fw-bold fs-6">Language: </span>{{ language }}
+        <div>
+          <span class="fw-bold fs-6">Original: </span>
+          {{ original }}
         </div>
-        <div><span class="fw-bold fs-6">Vote: </span>{{ vote }}</div>
+        <div class="flag">
+          <span class="fw-bold fs-6">Language: </span>
+          <img :src="`/images/flags/${language}.svg`" :alt="language">
+        </div>
+        <div>
+          <span class="fw-bold fs-6">Vote: </span>
+          {{ vote }}
+        </div>
       </div>
     </div>
   </div>
@@ -34,4 +43,10 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.flag {
+  img {
+    width: 20px;
+  }
+}
+</style>
