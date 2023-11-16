@@ -25,6 +25,10 @@
           <h6>Overview: </h6>
           <span>{{ overview }}</span>
         </div>
+        <div>
+          <h6>Genres: </h6>
+          <span v-for="genre in genres">{{ genre.name }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -41,6 +45,7 @@ export default {
     language: String,
     vote: Number,
     overview: String,
+    genre: String,
   },
   data() {
     return {
