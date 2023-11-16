@@ -95,6 +95,13 @@ export default {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+
+  & span {
+    text-wrap: balance;
+    word-wrap: break-word;
+  }
+
+  ;
 }
 
 .flip-card-front>img {
@@ -110,7 +117,7 @@ export default {
   transform: rotateY(180deg);
 
   div {
-    padding: 0.5em;
+    padding: 1em;
 
     h5,
     h6 {

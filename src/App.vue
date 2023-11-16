@@ -69,4 +69,14 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+@use "./assets/styles/partials/variables" as *;
+
+main {
+  margin-top: 5em;
+}
+
+h2 {
+  color: $color_white;
+}
+</style>
