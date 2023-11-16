@@ -10,8 +10,14 @@ export const store = reactive({
     api_key: "c86e86575fec70888484dcb2a1c2fd09",
     query: "",
   },
-  movieList: [],
-  seriesList: [],
   imagePath: "https://image.tmdb.org/t/p/w300",
   imageDefault: "/images/default.jpg",
+
+  genresPath: "https://api.themoviedb.org/3/genre/",
+  genresMovies: "movie/list",
+  genresSeries: "tv/list",
+
+  movieList: [],
+  seriesList: [],
+  genresList: [],
 });

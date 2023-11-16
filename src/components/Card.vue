@@ -6,28 +6,28 @@
       </div>
       <div class="flip-card-back">
         <div>
-          <h5>Title: </h5>
+          <h5>Title:</h5>
           <span>{{ title }}</span>
         </div>
         <div>
-          <h6>Original: </h6>
+          <h6>Original:</h6>
           <span>{{ original }}</span>
         </div>
         <div class="flag">
-          <h6>Language: </h6>
+          <h6>Language:</h6>
           <img :src="`/images/flags/${language}.svg`" :alt="language">
         </div>
         <div>
-          <h6>Vote: </h6>
+          <h6>Vote:</h6>
           <i :class="getStars(vote, star)" v-for="star in stars"></i>
         </div>
         <div>
-          <h6>Overview: </h6>
+          <h6>Overview:</h6>
           <span>{{ overview }}</span>
         </div>
         <div>
-          <h6>Genres: </h6>
-          <span v-for="genre in genres">{{ genre.name }}</span>
+          <h6>Genres:</h6>
+          <span v-for="item in genre">{{ getGenreName(item) }} </span>
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@ export default {
     language: String,
     vote: Number,
     overview: String,
-    genre: String,
+    genre: Array,
   },
   data() {
     return {
@@ -63,8 +63,15 @@ export default {
         return "fa-regular fa-star"
       }
 
+    },
+    getGenreName(id) {
+      const finder = this.store.genresList.find((el) => el.id == id)
+      if (finder) {
+        return finder.name;
+      }
     }
   },
+
 }
 </script>
 
@@ -103,7 +110,8 @@ export default {
 
   & span {
     text-wrap: balance;
-    word-wrap: break-word;
+    padding: 0 0.5em;
+    display: inline-block;
   }
 
   ;
@@ -128,6 +136,7 @@ export default {
     h6 {
       display: inline;
       font-weight: bold;
+      padding: 0 0.2em 0 0.5em;
     }
   }
 }
