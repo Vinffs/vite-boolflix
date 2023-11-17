@@ -122,7 +122,7 @@ export default {
       if (serie.cast && serie.cast.length > 0) {
         return
       }
-      const serieCredits = "https://api.themoviedb.org/3/movie/" + movie.id + "/credits";
+      const serieCredits = "https://api.themoviedb.org/3/tv/" + serie.id + "/credits";
       const params = {
         api_key: this.store.params.api_key
       }
