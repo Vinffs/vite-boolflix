@@ -10,9 +10,9 @@
         <div class="row">
           <div v-show="(!isFiltered || movie.genre_ids.includes(store.filteredGenre[0].id))"
             class="col-12 col-md-4 col-lg-3" v-for="(movie, index) in store.movieList" :key="movie.id">
-            <Card @mouseover="addCastMovie(movie)" :path="movie.poster_path" :title="movie.title"
-              :original="movie.original_title" :language="movie.original_language" :vote="getVote(movie.vote_average)"
-              :overview="movie.overview" :genre="movie.genre_ids" :id="movie.id" :cast="movie.cast" />
+            <Card :path="movie.poster_path" :title="movie.title" :original="movie.original_title"
+              :language="movie.original_language" :vote="getVote(movie.vote_average)" :overview="movie.overview"
+              :genre="movie.genre_ids" :id="movie.id" :cast="movie.cast" :type="'movie'" />
           </div>
         </div>
       </section>
@@ -21,9 +21,9 @@
         <div class="row">
           <div v-show="(!isFiltered || serie.genre_ids.includes(store.filteredGenre[0].id))"
             class="col-12 col-md-4 col-lg-3" v-for="(serie, index) in store.seriesList" :key="serie.id">
-            <Card @mouseover="addCastSerie(serie)" :path="serie.poster_path" :title="serie.name"
-              :original="serie.original_name" :language="serie.original_language" :vote="getVote(serie.vote_average)"
-              :overview="serie.overview" :genre="serie.genre_ids" :id="serie.id" :cast="serie.cast" />
+            <Card :path="serie.poster_path" :title="serie.name" :original="serie.original_name"
+              :language="serie.original_language" :vote="getVote(serie.vote_average)" :overview="serie.overview"
+              :genre="serie.genre_ids" :id="serie.id" :cast="serie.cast" :type="'tv'" />
           </div>
         </div>
       </section>
@@ -50,14 +50,14 @@ export default {
   },
   methods: {
     getMoviesAndSeries() {
-      const urlMovies = this.store.apiUrl + this.store.endPoint.movie;
-      const urlSeries = this.store.apiUrl + this.store.endPoint.series;
+      const searchUrl = this.store.url + this.store.ep.search
+      const movies = searchUrl + this.store.ep.movie;
+      const series = searchUrl + this.store.ep.series;
       const params = this.store.params;
 
-      Promise.all([axios.get(urlMovies, { params: params }), axios.get(urlSeries, { params: params })]).then((results) => {
+      Promise.all([axios.get(movies, { params: params }), axios.get(series, { params: params })]).then((results) => {
         this.store.movieList = results[0].data.results;
         this.store.seriesList = results[1].data.results;
-        console.log(this.store.movieList, this.store.seriesList)
       })
       this.store.params.query = "";
     },
@@ -67,11 +67,12 @@ export default {
       return rounded;
     },
     getGenres() {
-      const movieGenreUrl = this.store.genresPath + this.store.genresMovies;
-      const serieGenreUrl = this.store.genresPath + this.store.genresSeries;
-      const apikey = `?api_key=${this.store.params.api_key}`
+      const genreUrl = this.store.url + this.store.ep.genres
+      const movieGenre = genreUrl + this.store.ep.movie + this.store.ep.list;
+      const serieGenre = genreUrl + this.store.ep.series + this.store.ep.list;
+      const apikey = this.store.apiOnly
 
-      Promise.all([axios.get(movieGenreUrl + apikey), axios.get(serieGenreUrl + apikey)])
+      Promise.all([axios.get(movieGenre, { params: apikey }), axios.get(serieGenre, { params: apikey })])
         .then((results) => {
           const result0 = results[0].data.genres;
           const result1 = results[1].data.genres;
@@ -79,16 +80,13 @@ export default {
           for (let i = 0; i < result0.length; i++) {
             this.store.genresList.push(result0[i]);
           }
-
           for (let x = 0; x < result1.length; x++) {
             this.store.genresList.push(result1[x]);
           }
-
           this.store.genresList = this.store.genresList.filter(
             (genre, index, array) =>
               index === array.findIndex((x) => x.id === genre.id || x.name === genre.name)
           );
-          console.log(this.store.genresList);
         })
     },
     filterContent() {
@@ -100,43 +98,6 @@ export default {
         this.isFiltered = false;
       }
     },
-    addCastMovie(movie) {
-      if (movie.cast && movie.cast.length > 0) {
-        return
-      }
-      const movieCredits = "https://api.themoviedb.org/3/movie/" + movie.id + "/credits";
-      const params = {
-        api_key: this.store.params.api_key
-      }
-
-      movie.cast = [];
-      axios.get(movieCredits, { params }).then((results) => {
-        for (let i = 0; i < 5; i++) {
-          if (results.data.cast[i]) {
-            movie.cast.push(results.data.cast[i].name)
-          }
-        }
-      })
-    },
-    addCastSerie(serie) {
-      if (serie.cast && serie.cast.length > 0) {
-        return
-      }
-      const serieCredits = "https://api.themoviedb.org/3/tv/" + serie.id + "/credits";
-      const params = {
-        api_key: this.store.params.api_key
-      }
-
-      serie.cast = [];
-      axios.get(serieCredits, { params }).then((results) => {
-        for (let i = 0; i < 5; i++) {
-          if (results.data.cast[i]) {
-            serie.cast.push(results.data.cast[i].name)
-          }
-        }
-      })
-    }
-
   },
 
   created() {

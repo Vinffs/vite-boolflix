@@ -1,5 +1,5 @@
 <template>
-  <div class="flip-card my-4">
+  <div class="flip-card my-4" @mouseover="addCast()">
     <div class="flip-card-inner">
       <div class="flip-card-front">
         <img :src="(path != null ? (store.imagePath + path) : store.imageDefault)" class="card-img-top" :alt="title">
@@ -27,13 +27,12 @@
         </div>
         <div>
           <h6>Cast:</h6>
-          <div class="px-2 py-1" v-for="person in cast">{{ person }} </div>
+          <div class="px-2 py-1" v-for="person in this.cast">{{ person }} </div>
         </div>
         <div>
           <h6>Overview:</h6>
           <span>{{ overview }}</span>
         </div>
-
       </div>
     </div>
   </div>
@@ -53,12 +52,13 @@ export default {
     overview: String,
     genre: Array,
     id: Number,
-    cast: Array
+    type: String,
   },
   data() {
     return {
       store,
       stars: 5,
+      cast: [],
     }
   },
   methods: {
@@ -77,6 +77,22 @@ export default {
       if (finder) {
         return finder.name;
       }
+    },
+    addCast() {
+      if (this.cast && this.cast.length > 0) {
+        return
+      }
+      const url = this.store.url + "/" + this.type + "/" + this.id + this.store.ep.credits;
+      const params = this.store.apiOnly
+
+      axios.get(url, { params }).then((results) => {
+        this.cast = [];
+        for (let i = 0; i < 5; i++) {
+          if (results.data.cast[i]) {
+            this.cast.push(results.data.cast[i].name)
+          }
+        }
+      })
     },
 
   },
