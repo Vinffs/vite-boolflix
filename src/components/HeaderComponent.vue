@@ -5,6 +5,13 @@
         <div class="imgContainer">
           <img src="/images/logo.png" alt="logo">
         </div>
+        <div>
+          <select name="" id="" @change="$emit('filter')" v-model="store.genreID">
+            <option value="">All</option>
+            <option :value="genre.id" v-for="(genre, index) in store.genresList" :key="genre.id"> {{ genre.name }}
+            </option>
+          </select>
+        </div>
         <div class="d-flex">
           <i @click="(isActive = !isActive)" :class="(isActive ? 'd-none' : 'd-inline-block')"
             class="fa-solid fa-magnifying-glass fs-5 text-light pt-2"></i>
@@ -24,11 +31,9 @@ export default {
     return {
       store,
       isActive: false,
-      enter: true,
     }
   },
   methods: {
-
   }
 }
 </script>

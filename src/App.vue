@@ -1,5 +1,5 @@
 <template>
-  <HeaderComponent @clicked="getMoviesAndSeries" />
+  <HeaderComponent @clicked="getMoviesAndSeries" @filter="filterContent()" />
   <main>
     <div class="container" v-if="(store.movieList.length == 0 && store.seriesList.length == 0)">
       <h1>Search for Movies and TV Series</h1>
@@ -8,20 +8,22 @@
       <section id="movie" class="container">
         <h2>Movies</h2>
         <div class="row">
-          <div class="col-12 col-md-4 col-lg-3" v-for="(movie, index) in store.movieList" :key="movie.id">
-            <Card :path="movie.poster_path" :title="movie.title" :original="movie.original_title"
-              :language="movie.original_language" :vote="getVote(movie.vote_average)" :overview="movie.overview"
-              :genre="movie.genre_ids" />
+          <div v-show="(!isFiltered || movie.genre_ids.includes(store.filteredGenre[0].id))"
+            class="col-12 col-md-4 col-lg-3" v-for="(movie, index) in store.movieList" :key="movie.id">
+            <Card @mouseover="addCastMovie(movie)" :path="movie.poster_path" :title="movie.title"
+              :original="movie.original_title" :language="movie.original_language" :vote="getVote(movie.vote_average)"
+              :overview="movie.overview" :genre="movie.genre_ids" :id="movie.id" :cast="movie.cast" />
           </div>
         </div>
       </section>
       <section id="series" class="container">
         <h2>TV Series</h2>
         <div class="row">
-          <div class="col-12 col-md-4 col-lg-3" v-for="(serie, index) in store.seriesList" :key="serie.id">
-            <Card :path="serie.poster_path" :title="serie.name" :original="serie.original_name"
-              :language="serie.original_language" :vote="getVote(serie.vote_average)" :overview="serie.overview"
-              :genre="serie.genre_ids" />
+          <div v-show="(!isFiltered || serie.genre_ids.includes(store.filteredGenre[0].id))"
+            class="col-12 col-md-4 col-lg-3" v-for="(serie, index) in store.seriesList" :key="serie.id">
+            <Card @mouseover="addCastSerie(serie)" :path="serie.poster_path" :title="serie.name"
+              :original="serie.original_name" :language="serie.original_language" :vote="getVote(serie.vote_average)"
+              :overview="serie.overview" :genre="serie.genre_ids" :id="serie.id" :cast="serie.cast" />
           </div>
         </div>
       </section>
@@ -43,6 +45,7 @@ export default {
   data() {
     return {
       store,
+      isFiltered: false,
     };
   },
   methods: {
@@ -87,8 +90,55 @@ export default {
           );
           console.log(this.store.genresList);
         })
+    },
+    filterContent() {
+      this.store.filteredGenre = [];
+      if (store.genreID != "") {
+        this.isFiltered = true;
+        this.store.filteredGenre = this.store.genresList.filter((el) => el.id == store.genreID)
+      } else {
+        this.isFiltered = false;
+      }
+    },
+    addCastMovie(movie) {
+      if (movie.cast && movie.cast.length > 0) {
+        return
+      }
+      const movieCredits = "https://api.themoviedb.org/3/movie/" + movie.id + "/credits";
+      const params = {
+        api_key: this.store.params.api_key
+      }
+
+      movie.cast = [];
+      axios.get(movieCredits, { params }).then((results) => {
+        for (let i = 0; i < 5; i++) {
+          if (results.data.cast[i]) {
+            movie.cast.push(results.data.cast[i].name)
+          }
+        }
+      })
+    },
+    addCastSerie(serie) {
+      if (serie.cast && serie.cast.length > 0) {
+        return
+      }
+      const serieCredits = "https://api.themoviedb.org/3/movie/" + movie.id + "/credits";
+      const params = {
+        api_key: this.store.params.api_key
+      }
+
+      serie.cast = [];
+      axios.get(serieCredits, { params }).then((results) => {
+        for (let i = 0; i < 5; i++) {
+          if (results.data.cast[i]) {
+            serie.cast.push(results.data.cast[i].name)
+          }
+        }
+      })
     }
+
   },
+
   created() {
     this.getGenres();
   }

@@ -22,13 +22,18 @@
           <i :class="getStars(vote, star)" v-for="star in stars"></i>
         </div>
         <div>
-          <h6>Overview:</h6>
-          <span>{{ overview }}</span>
-        </div>
-        <div>
           <h6>Genres:</h6>
           <span v-for="item in genre">{{ getGenreName(item) }} </span>
         </div>
+        <div>
+          <h6>Cast:</h6>
+          <div class="px-2 py-1" v-for="person in cast">{{ person }} </div>
+        </div>
+        <div>
+          <h6>Overview:</h6>
+          <span>{{ overview }}</span>
+        </div>
+
       </div>
     </div>
   </div>
@@ -36,6 +41,7 @@
 
 <script>
 import { store } from "../assets/data/store";
+import axios from "axios";
 export default {
   name: 'Card',
   props: {
@@ -46,6 +52,8 @@ export default {
     vote: Number,
     overview: String,
     genre: Array,
+    id: Number,
+    cast: Array
   },
   data() {
     return {
@@ -69,7 +77,8 @@ export default {
       if (finder) {
         return finder.name;
       }
-    }
+    },
+
   },
 
 }
