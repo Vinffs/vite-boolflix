@@ -6,7 +6,7 @@
           <img src="/images/logo.png" alt="logo">
         </div>
         <div>
-          <select name="" id="" @change="$emit('filter')" v-model="store.genreID">
+          <select name="" id="" v-model="store.genreID" @change="$emit('filter')">
             <option value="">All</option>
             <option :value="genre.id" v-for="(genre, index) in store.genresList" :key="genre.id"> {{ genre.name }}
             </option>
@@ -34,6 +34,7 @@ export default {
     }
   },
   methods: {
+
   }
 }
 </script>

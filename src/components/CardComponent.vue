@@ -2,12 +2,12 @@
   <div class="flip-card my-4" @mouseover="addCast()">
     <div class="flip-card-inner">
       <div class="flip-card-front">
-        <img :src="(path != null ? (store.imagePath + path) : store.imageDefault)" class="card-img-top" :alt="title">
+        <img :src="(path != null ? (store.imagePath + path) : store.imageDefault)" class="card-img-top" :alt="name">
       </div>
       <div class="flip-card-back">
         <div>
           <h5>Title:</h5>
-          <span>{{ title }}</span>
+          <span>{{ name }}</span>
         </div>
         <div>
           <h6>Original:</h6>
@@ -42,10 +42,10 @@
 import { store } from "../assets/data/store";
 import axios from "axios";
 export default {
-  name: 'Card',
+  name: 'CardComponent',
   props: {
     path: String,
-    title: String,
+    name: String,
     original: String,
     language: String,
     vote: Number,
@@ -53,6 +53,7 @@ export default {
     genre: Array,
     id: Number,
     type: String,
+    casting: Array,
   },
   data() {
     return {
@@ -93,11 +94,12 @@ export default {
           }
         }
       })
+      console.log(store.genreID)
     },
 
   },
 
-}
+};
 </script>
 
 <style lang="scss" scoped>

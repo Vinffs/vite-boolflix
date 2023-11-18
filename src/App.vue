@@ -1,65 +1,59 @@
 <template>
-  <HeaderComponent @clicked="getMoviesAndSeries" @filter="filterContent()" />
+  <HeaderComponent @clicked="getMoviesAndSeries" @filter="filterContent" />
   <main>
-    <div class="container" v-if="(store.movieList.length == 0 && store.seriesList.length == 0)">
-      <h1>Search for Movies and TV Series</h1>
+    <div v-if="(store.movieList.length == 0 && store.seriesList.length == 0)">
+      <SliderComponent :items="store.popularMovies" sectionName="Popular Movies" sectionType="movie" />
+      <SliderComponent :items="store.popularSeries" sectionName="Popular TV Series" sectionType="tv" />
+    </div>
+    <div v-if="(store.movieList.length > 0 && store.genreID === '') || (store.movieList.includes(store.genreID))">
+      <SliderComponent :items="store.movieList" sectionName="Movies" sectionType="movie" />
     </div>
     <div v-else>
-      <section id="movie" class="container">
-        <h2>Movies</h2>
-        <div class="row">
-          <div v-show="(!isFiltered || movie.genre_ids.includes(store.filteredGenre[0].id))"
-            class="col-12 col-md-4 col-lg-3" v-for="(movie, index) in store.movieList" :key="movie.id">
-            <Card :path="movie.poster_path" :title="movie.title" :original="movie.original_title"
-              :language="movie.original_language" :vote="getVote(movie.vote_average)" :overview="movie.overview"
-              :genre="movie.genre_ids" :id="movie.id" :cast="movie.cast" :type="'movie'" />
-          </div>
-        </div>
-      </section>
-      <section id="series" class="container">
-        <h2>TV Series</h2>
-        <div class="row">
-          <div v-show="(!isFiltered || serie.genre_ids.includes(store.filteredGenre[0].id))"
-            class="col-12 col-md-4 col-lg-3" v-for="(serie, index) in store.seriesList" :key="serie.id">
-            <Card :path="serie.poster_path" :title="serie.name" :original="serie.original_name"
-              :language="serie.original_language" :vote="getVote(serie.vote_average)" :overview="serie.overview"
-              :genre="serie.genre_ids" :id="serie.id" :cast="serie.cast" :type="'tv'" />
-          </div>
-        </div>
-      </section>
+      <h2>No Movies Found</h2>
+    </div>
+    <div v-if="(store.seriesList.length > 0 && store.genreID === '') || (store.seriesIDGenres.includes(store.genreID))">
+      <SliderComponent :items="store.seriesList" sectionName="TV Series" sectionType="tv" />
+    </div>
+    <div v-else>
+      <h2>No TV Series Found</h2>
     </div>
   </main>
 </template>
+
 
 <script>
 import { store } from "./assets/data/store";
 import axios from 'axios';
 import HeaderComponent from "./components/HeaderComponent.vue";
-import Card from "./components/Card.vue";
+import SliderComponent from "./components/SliderComponent.vue";
 export default {
   name: 'App',
   components: {
     HeaderComponent,
-    Card,
+    SliderComponent,
   },
   data() {
     return {
       store,
-      isFiltered: false,
+      currentSlide: 0,
+      cardsPerSlide: 6,
     };
   },
   methods: {
     getMoviesAndSeries() {
-      const searchUrl = this.store.url + this.store.ep.search
-      const movies = searchUrl + this.store.ep.movie;
-      const series = searchUrl + this.store.ep.series;
-      const params = this.store.params;
+      const searchUrl = store.url + store.ep.search
+      const movies = searchUrl + store.ep.movie;
+      const series = searchUrl + store.ep.series;
+      const params = store.params;
 
       Promise.all([axios.get(movies, { params: params }), axios.get(series, { params: params })]).then((results) => {
-        this.store.movieList = results[0].data.results;
-        this.store.seriesList = results[1].data.results;
+        store.movieList = results[0].data.results;
+        store.seriesList = results[1].data.results;
+
+        this.processSearch();
+
       })
-      this.store.params.query = "";
+      store.params.query = "";
     },
     getVote(vote) {
       const newVote = vote / 2;
@@ -67,10 +61,10 @@ export default {
       return rounded;
     },
     getGenres() {
-      const genreUrl = this.store.url + this.store.ep.genres
-      const movieGenre = genreUrl + this.store.ep.movie + this.store.ep.list;
-      const serieGenre = genreUrl + this.store.ep.series + this.store.ep.list;
-      const apikey = this.store.apiOnly
+      const genreUrl = store.url + store.ep.genres
+      const movieGenre = genreUrl + store.ep.movie + store.ep.list;
+      const serieGenre = genreUrl + store.ep.series + store.ep.list;
+      const apikey = store.apiOnly
 
       Promise.all([axios.get(movieGenre, { params: apikey }), axios.get(serieGenre, { params: apikey })])
         .then((results) => {
@@ -78,33 +72,66 @@ export default {
           const result1 = results[1].data.genres;
 
           for (let i = 0; i < result0.length; i++) {
-            this.store.genresList.push(result0[i]);
+            store.genresList.push(result0[i]);
           }
           for (let x = 0; x < result1.length; x++) {
-            this.store.genresList.push(result1[x]);
+            store.genresList.push(result1[x]);
           }
-          this.store.genresList = this.store.genresList.filter(
+          store.genresList = store.genresList.filter(
             (genre, index, array) =>
               index === array.findIndex((x) => x.id === genre.id || x.name === genre.name)
           );
         })
     },
+    getPopular() {
+      const movies = store.url + store.ep.movie + store.ep.popular;
+      const series = store.url + store.ep.series + store.ep.popular;
+      const params = store.apiOnly;
+
+      Promise.all([axios.get(movies, { params }), axios.get(series, { params })]).then((results) => {
+        store.popularMovies = results[0].data.results;
+        store.popularSeries = results[1].data.results;
+        this.processPopular();
+      })
+    },
     filterContent() {
-      this.store.filteredGenre = [];
+      store.filteredGenre = [];
       if (store.genreID != "") {
-        this.isFiltered = true;
-        this.store.filteredGenre = this.store.genresList.filter((el) => el.id == store.genreID)
+        store.isFiltered = true;
+        store.filteredGenre = store.genresList.filter((el) => el.id == store.genreID)
+        console.log(store.filteredGenre);
       } else {
-        this.isFiltered = false;
+        store.isFiltered = false;
       }
     },
-  },
+    extractGenres(sourceArray, destinationArray) {
+      for (let i = 0; i < sourceArray.length; i++) {
+        for (let a = 0; a < sourceArray[i].genre_ids.length; a++) {
+          destinationArray.push(sourceArray[i].genre_ids[a])
+        }
+      }
+    },
+    processSearch() {
+      store.moviesIDGenres = [];
+      store.seriesIDGenres = [];
+      this.extractGenres(store.movieList, store.moviesIDGenres);
+      this.extractGenres(store.seriesList, store.seriesIDGenres);
 
+    },
+    processPopular() {
+      store.popularMoviesIDGenres = [];
+      store.popularSeriesIDGenres = [];
+      this.extractGenres(store.popularMovies, store.popularMoviesIDGenres);
+      this.extractGenres(store.popularSeries, store.popularSeriesIDGenres);
+
+      console.log(store.popularMoviesIDGenres)
+      console.log(store.popularSeriesIDGenres)
+    }
+  },
   created() {
+    this.getPopular();
     this.getGenres();
   }
-
-
 }
 </script>
 

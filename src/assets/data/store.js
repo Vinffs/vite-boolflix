@@ -9,6 +9,7 @@ export const store = reactive({
     credits: "/credits",
     movie: "/movie",
     series: "/tv",
+    popular: "/popular",
   },
   params: {
     api_key: "c86e86575fec70888484dcb2a1c2fd09",
@@ -17,12 +18,21 @@ export const store = reactive({
   apiOnly: {
     api_key: "c86e86575fec70888484dcb2a1c2fd09",
   },
-  imagePath: "https://image.tmdb.org/t/p/w300",
+  imagePath: "https://image.tmdb.org/t/p/w342",
   imageDefault: "/images/default.jpg",
 
   movieList: [],
   seriesList: [],
-  genresList: [],
+  popularMovies: [],
+  popularSeries: [],
+
+  moviesIDGenres: [],
+  seriesIDGenres: [],
+  popularMoviesIDGenres: [],
+  popularSeriesIDGenres: [],
+
   filteredGenre: [],
+  genresList: [],
   genreID: "",
+  isFiltered: false,
 });
