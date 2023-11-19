@@ -1,21 +1,38 @@
 <template>
   <HeaderComponent @clicked="getMoviesAndSeries" @filter="filterContent" />
   <main>
-    <div v-if="(store.movieList.length == 0 && store.seriesList.length == 0)">
-      <SliderComponent :items="store.popularMovies" sectionName="Popular Movies" sectionType="movie" />
-      <SliderComponent :items="store.popularSeries" sectionName="Popular TV Series" sectionType="tv" />
+    <div v-if="((store.movieList.length == 0 && store.seriesList.length == 0) && (!movieEmpty && !serieEmpty))">
+      <div
+        v-if="(store.popularMovies.length > 0 && store.genreID === '') || (store.popularMoviesIDGenres.includes(store.genreID))">
+        <SliderComponent :items="store.popularMovies" sectionName="Popular Movies" sectionType="movie" />
+      </div>
+      <div v-else class="container">
+        <h2>No Popular Movies Found With The Selected Genre</h2>
+      </div>
+      <div
+        v-if="(store.popularSeries.length > 0 && store.genreID === '') || (store.popularSeriesIDGenres.includes(store.genreID))">
+        <SliderComponent :items="store.popularSeries" sectionName="Popular TV Series" sectionType="tv" />
+      </div>
+      <div v-else class="container">
+        <h2>No Popular TV Series Found With The Selected Genre</h2>
+      </div>
     </div>
-    <div v-if="(store.movieList.length > 0 && store.genreID === '') || (store.movieList.includes(store.genreID))">
-      <SliderComponent :items="store.movieList" sectionName="Movies" sectionType="movie" />
+    <div v-else-if="((store.movieList.length != 0 && store.seriesList.length != 0) && (!movieEmpty && !serieEmpty))">
+      <div v-if="(store.movieList.length > 0 && store.genreID === '') || (store.moviesIDGenres.includes(store.genreID))">
+        <SliderComponent :items="store.movieList" sectionName="Movies" sectionType="movie" />
+      </div>
+      <div v-else class="container">
+        <h2>No Movies Found</h2>
+      </div>
+      <div v-if="(store.seriesList.length > 0 && store.genreID === '') || (store.seriesIDGenres.includes(store.genreID))">
+        <SliderComponent :items="store.seriesList" sectionName="TV Series" sectionType="tv" />
+      </div>
+      <div v-else class="container">
+        <h2>No TV Series Found</h2>
+      </div>
     </div>
-    <div v-else>
-      <h2>No Movies Found</h2>
-    </div>
-    <div v-if="(store.seriesList.length > 0 && store.genreID === '') || (store.seriesIDGenres.includes(store.genreID))">
-      <SliderComponent :items="store.seriesList" sectionName="TV Series" sectionType="tv" />
-    </div>
-    <div v-else>
-      <h2>No TV Series Found</h2>
+    <div v-else class="container">
+      <h2>No Movie or TV Series Found</h2>
     </div>
   </main>
 </template>
@@ -26,6 +43,7 @@ import { store } from "./assets/data/store";
 import axios from 'axios';
 import HeaderComponent from "./components/HeaderComponent.vue";
 import SliderComponent from "./components/SliderComponent.vue";
+
 export default {
   name: 'App',
   components: {
@@ -35,8 +53,8 @@ export default {
   data() {
     return {
       store,
-      currentSlide: 0,
-      cardsPerSlide: 6,
+      movieEmpty: false,
+      serieEmpty: false,
     };
   },
   methods: {
@@ -45,8 +63,19 @@ export default {
       const movies = searchUrl + store.ep.movie;
       const series = searchUrl + store.ep.series;
       const params = store.params;
+      console.log(params)
 
       Promise.all([axios.get(movies, { params: params }), axios.get(series, { params: params })]).then((results) => {
+        this.movieEmpty = false;
+        this.serieEmpty = false;
+
+        if (results[0].data.results.length == 0) {
+          this.movieEmpty = true;
+        }
+        if (results[1].data.results.length == 0) {
+          this.serieEmpty = true;
+        }
+
         store.movieList = results[0].data.results;
         store.seriesList = results[1].data.results;
 
@@ -99,7 +128,6 @@ export default {
       if (store.genreID != "") {
         store.isFiltered = true;
         store.filteredGenre = store.genresList.filter((el) => el.id == store.genreID)
-        console.log(store.filteredGenre);
       } else {
         store.isFiltered = false;
       }
@@ -123,9 +151,6 @@ export default {
       store.popularSeriesIDGenres = [];
       this.extractGenres(store.popularMovies, store.popularMoviesIDGenres);
       this.extractGenres(store.popularSeries, store.popularSeriesIDGenres);
-
-      console.log(store.popularMoviesIDGenres)
-      console.log(store.popularSeriesIDGenres)
     }
   },
   created() {
@@ -139,11 +164,12 @@ export default {
 @use "./assets/styles/partials/variables" as *;
 
 main {
-  margin-top: 5em;
+  margin-top: 5.5rem;
 }
 
 h1,
 h2 {
   color: $color_white;
+  margin: 1em 0;
 }
 </style>

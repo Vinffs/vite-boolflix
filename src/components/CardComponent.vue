@@ -1,5 +1,5 @@
 <template>
-  <div class="flip-card my-4" @mouseover="addCast()">
+  <div class="flip-card" @mouseover="addCast()">
     <div class="flip-card-inner">
       <div class="flip-card-front">
         <img :src="(path != null ? (store.imagePath + path) : store.imageDefault)" class="card-img-top" :alt="name">
@@ -112,7 +112,7 @@ export default {
 }
 
 .flip-card {
-  height: 450px;
+  height: 342px;
   perspective: 1000px;
 
   &:hover .flip-card-inner {
